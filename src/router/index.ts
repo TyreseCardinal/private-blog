@@ -1,23 +1,25 @@
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
-import HomeView from "../views/HomeView.vue";
+
+import Login from "@/components/Login.vue";
+import Register from "@/components/Register.vue";
 
 Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
   {
     path: "/",
-    name: "home",
-    component: HomeView,
+    name: "Login", // Set the root path to point to the Login page
+    component: Login,
   },
   {
-    path: "/about",
-    name: "about",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
+    path: "/register",
+    name: "register",
+    component: Register,
+  },
+  {
+    path: "*",
+    redirect: "/login", // Redirect unknown routes to login
   },
 ];
 
@@ -25,6 +27,17 @@ const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  // Check if the user is authenticated by looking for a token
+  const isAuthenticated = !!localStorage.getItem("accessToken"); // Replace with appropriate logic
+
+  if (to.path !== "/login" && !isAuthenticated) {
+    next("/login"); // Redirect to login page if not authenticated
+  } else {
+    next(); // Proceed to the route
+  }
 });
 
 export default router;
